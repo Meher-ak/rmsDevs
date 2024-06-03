@@ -1,27 +1,23 @@
 import { Component, ChangeDetectionStrategy, input } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { User } from '@infordevjournal/core/api-types';
+import { DropdownComponent } from '@infordevjournal/notifications/feature-dropdown';
+import { ClickOutsideDirective } from '@infordevjournal/ui/directives/src';
 
 @Component({
   selector: 'cdt-navbar',
   standalone: true,
   templateUrl: './navbar.component.html',
-  imports: [RouterModule],
+  imports: [RouterModule, DropdownComponent, ClickOutsideDirective],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NavbarComponent {
   user = input.required<User>();
   isLoggedIn = input.required<boolean>();
-  
 
   isNotificationsOpen = false;
 
   toggleNotifications() {
-
-    const element = document.getElementById('notifList');
-    if (element) {
-      element.style.display = this.isNotificationsOpen ? 'none' : 'block';
-      this.isNotificationsOpen = !this.isNotificationsOpen;
-    }
+    this.isNotificationsOpen = !this.isNotificationsOpen;
   }
 }
