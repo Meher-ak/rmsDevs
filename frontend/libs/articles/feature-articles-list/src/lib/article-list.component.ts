@@ -1,5 +1,5 @@
 import { AsyncPipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ArticleListItemComponent } from './article-list-item/article-list-item.component';
 import { PagerComponent } from '@infordevjournal/ui/components';
@@ -31,7 +31,7 @@ const imports = [
   imports,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ArticleListComponent implements OnInit {
+export class ArticleListComponent implements OnInit, OnDestroy {
   private readonly articlesListStore = inject(ArticlesListStore);
   private readonly router = inject(Router);
 
@@ -48,6 +48,10 @@ export class ArticleListComponent implements OnInit {
 
   constructor() {
     this.articlesListStore.listenToSocketLikeUnlike({});
+  }
+
+  ngOnDestroy(): void {
+    this.unsubscribeFromSearch();
   }
 
   ngOnInit(): void {
@@ -98,5 +102,9 @@ export class ArticleListComponent implements OnInit {
     if (intersected) {
       this.setPage(this.$listConfig.currentPage() + 1, 'LOAD_MORE');
     }
+  }
+
+  unsubscribeFromSearch(): void {
+    this.searchSubject.unsubscribe();
   }
 }
