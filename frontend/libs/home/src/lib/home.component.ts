@@ -1,5 +1,10 @@
 import { Component, ChangeDetectionStrategy, inject, effect, untracked } from '@angular/core';
-import { ArticlesListStore, ListType, articlesListInitialState } from '@infordevjournal/articles/data-access';
+import {
+  ArticlesListStore,
+  ListType,
+  LoadStrategyType,
+  articlesListInitialState,
+} from '@infordevjournal/articles/data-access';
 import { AsyncPipe, NgClass } from '@angular/common';
 import { TagsListComponent } from './tags-list/tags-list.component';
 import { ArticleListComponent } from '@infordevjournal/articles/feature-articles-list/src';
@@ -22,10 +27,13 @@ export class HomeComponent {
   private readonly homeStore = inject(HomeStoreService);
 
   $listConfig = this.articlesListStore.listConfig;
+  $listAlreadyLoaded = this.articlesListStore.alreadyLoaded;
   tags$ = this.homeStore.tags$;
 
   constructor() {
-    this.articlesListStore.loadArticles(this.$listConfig);
+    const isAlreadyLoadedArticles = this.$listAlreadyLoaded && this.$listAlreadyLoaded();
+    this.articlesListStore.loadArticles(isAlreadyLoadedArticles ? this.$listConfig() : this.$listConfig);
+    this.articlesListStore.listenToSocketArticles({});
   }
 
   readonly loadArticlesOnLogin = effect(() => {
@@ -33,8 +41,8 @@ export class HomeComponent {
     untracked(() => this.getArticles(isLoggedIn));
   });
 
-  setListTo(type: ListType = 'ALL') {
-    const config = { ...articlesListInitialState.listConfig, type };
+  setListTo(type: ListType = 'ALL', loadStrategy: LoadStrategyType = 'INITIAL') {
+    const config = { ...articlesListInitialState.listConfig, type, loadStrategy };
     this.articlesListStore.setListConfig(config);
   }
 

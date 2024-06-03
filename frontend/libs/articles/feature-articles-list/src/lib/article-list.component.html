@@ -1,5 +1,13 @@
+<input
+  [(ngModel)]="search"
+  type="text"
+  class="form-control bg-faded"
+  placeholder="Search Article"
+  (input)="onSearch()"
+/>
+
 @if (!$isLoading()) {
-  @for (article of $articles(); track article.slug) {
+  @for (article of $articles(); track article.slug + article.favoritesCount) {
     <cdt-article-list-item
       data-e2e-id="article-list"
       (navigateToArticle)="navigateToArticle($event)"
@@ -12,11 +20,17 @@
     <div>No articles are here... yet.</div>
   }
 
-  <cdt-pager
-    (setPage)="setPage($event)"
-    [currentPage]="$listConfig.currentPage()"
-    [totalPages]="$totalPages()"
-  ></cdt-pager>
+  @if (pagerMode === 'onscroll') {
+    @if ($listConfig.currentPage() < $totalPages().length - 1) {
+      <div (cdtEnteredToViewport)="entredToViewport($event)" [unsubscription]="false"></div>
+    }
+  } @else {
+    <cdt-pager
+      (setPage)="setPage($event, 'INITIAL')"
+      [currentPage]="$listConfig.currentPage()"
+      [totalPages]="$totalPages()"
+    ></cdt-pager>
+  }
 } @else {
   <div>Loading articles...</div>
 }

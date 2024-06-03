@@ -1,22 +1,23 @@
 import { inject } from '@angular/core';
 import { ActivatedRouteSnapshot, ResolveFn } from '@angular/router';
-import { ArticlesListStore, articlesListInitialState } from '@infordevjournal/articles/data-access';
+import { ArticlesListConfig, articlesListInitialState } from '@infordevjournal/articles/data-access';
 import { of } from 'rxjs';
+import { ProfileLibService } from '../services/profile-lib.service';
 
 export const profileArticlesResolver: ResolveFn<boolean> = (route: ActivatedRouteSnapshot) => {
   const username = route.params['username'];
-  const articlesListStore = inject(ArticlesListStore);
+  const profileLibService = inject(ProfileLibService);
 
-  const config = {
+  const config: ArticlesListConfig = {
     ...articlesListInitialState.listConfig,
+    loadStrategy: 'INITIAL',
     filters: {
       ...articlesListInitialState.listConfig.filters,
       author: username,
     },
   };
 
-  articlesListStore.setListConfig(config);
-  articlesListStore.loadArticles(config);
+  profileLibService.resolveArticles(config);
 
   return of(true);
 };

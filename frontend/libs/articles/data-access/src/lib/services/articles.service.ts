@@ -32,6 +32,9 @@ export class ArticlesService {
   }
 
   query(config: ArticlesListConfig): Observable<{ articles: Article[]; articlesCount: number }> {
+    if (config.filters.title) {
+      return this.apiService.get('/articles/search', this.toHttpParams({title:config.filters.title}));
+    }
     return this.apiService.get('/articles', this.toHttpParams(config.filters));
   }
 
