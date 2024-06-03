@@ -47,12 +47,11 @@ export const ArticlesListStore = signalStore(
 
                 patchState(store, {
                   articles: { articlesCount: articlesCount, entities: articles },
-                  alreadyLoaded: true,
                   ...setLoaded('getArticles'),
                 });
               },
               error: () => {
-                patchState(store, { ...articlesListInitialState, alreadyLoaded: true, ...setLoaded('getArticles') });
+                patchState(store, { ...articlesListInitialState, ...setLoaded('getArticles') });
               },
             }),
           ),

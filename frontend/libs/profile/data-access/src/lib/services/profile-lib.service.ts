@@ -6,10 +6,8 @@ export class ProfileLibService {
   private readonly articlesListStore = inject(ArticlesListStore);
 
   resolveArticles(config: ArticlesListConfig): void {
-    // we use this assignemet due to the behavior of rxMethod reactive method from ngrx
-    const isAlreadyLoadedArticles =
-      this.articlesListStore.alreadyLoaded && this.articlesListStore.alreadyLoaded();
+    const $isLoaded = this.articlesListStore.getArticlesLoaded;
     this.articlesListStore.setListConfig(config);
-    this.articlesListStore.loadArticles(isAlreadyLoadedArticles ? config : this.articlesListStore.listConfig);
+    this.articlesListStore.loadArticles($isLoaded() ? config : this.articlesListStore.listConfig);
   }
 }

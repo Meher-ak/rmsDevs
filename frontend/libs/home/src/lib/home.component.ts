@@ -16,7 +16,7 @@ import { AuthStore } from '@infordevjournal/auth/data-access';
   selector: 'cdt-home',
   standalone: true,
   templateUrl: './home.component.html',
-  styleUrls: ['./home.component.css'],
+  styleUrl: './home.component.css',
   imports: [AsyncPipe, NgClass, TagsListComponent, ArticleListComponent],
   providers: [provideComponentStore(HomeStoreService)],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -27,12 +27,11 @@ export class HomeComponent {
   private readonly homeStore = inject(HomeStoreService);
 
   $listConfig = this.articlesListStore.listConfig;
-  $listAlreadyLoaded = this.articlesListStore.alreadyLoaded;
+  $isLoaded = this.articlesListStore.getArticlesLoaded;
   tags$ = this.homeStore.tags$;
 
   constructor() {
-    const isAlreadyLoadedArticles = this.$listAlreadyLoaded && this.$listAlreadyLoaded();
-    this.articlesListStore.loadArticles(isAlreadyLoadedArticles ? this.$listConfig() : this.$listConfig);
+    this.articlesListStore.loadArticles(this.$isLoaded() ? this.$listConfig() : this.$listConfig);
     this.articlesListStore.listenToSocketArticles({});
   }
 

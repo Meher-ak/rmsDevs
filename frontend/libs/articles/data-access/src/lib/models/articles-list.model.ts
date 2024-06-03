@@ -3,7 +3,6 @@ import { Article } from '@infordevjournal/core/api-types';
 export interface ArticlesListState {
   listConfig: ArticlesListConfig;
   articles: Articles;
-  alreadyLoaded: boolean,
 }
 
 export interface ArticlesListConfig {
@@ -44,5 +43,4 @@ export const articlesListInitialState: ArticlesListState = {
     entities: [],
     articlesCount: 0,
   },
-  alreadyLoaded: false,
 };

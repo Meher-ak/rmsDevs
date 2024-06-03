@@ -2,7 +2,8 @@ import { AsyncPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ArticleListItemComponent } from './article-list-item/article-list-item.component';
-import { EnteredToViewportDirective, PagerComponent } from '@infordevjournal/ui/components';
+import { PagerComponent } from '@infordevjournal/ui/components';
+import { EnteredToViewportDirective } from '@infordevjournal/ui/directives/src';
 import {
   ArticlesListConfig,
   articlesListInitialState,
