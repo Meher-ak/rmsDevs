@@ -31,13 +31,14 @@
       "@infordevjournal/core/forms": ["libs/core/forms/src/index.ts"],
       "@infordevjournal/core/http-client": ["libs/core/http-client/src/index.ts"],
       "@infordevjournal/notifications/data-access": ["libs/notifications/data-access/src/index.ts"],
+      "@infordevjournal/notifications/feature-dropdown": ["libs/notifications/feature-dropdown/src/index.ts"],
       "@infordevjournal/profile/data-access": ["libs/profile/data-access/src/index.ts"],
       "@infordevjournal/profile/feature-profile": ["libs/profile/feature-profile/src/index.ts"],
       "@infordevjournal/settings/data-access": ["libs/settings/data-access/src/index.ts"],
       "@infordevjournal/settings/feature-settings": ["libs/settings/feature-settings/src/index.ts"],
       "@infordevjournal/ui/components": ["libs/ui/components/src/index.ts"],
       "@infordevjournal/ws": ["libs/ws/src/index.ts"],
-      "@infordevjournal/notifications/feature-dropdown": ["libs/notifications/feature-dropdown/src/index.ts"]
+      "@infordevjournal/ui/directives": ["libs/ui/ui-directives/src/index.ts"]
     },
     "strict": true
   },
