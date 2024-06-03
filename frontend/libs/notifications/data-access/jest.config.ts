@@ -1,9 +1,9 @@
 /* eslint-disable */
 export default {
-  displayName: 'notifications',
-  preset: '../../jest.preset.js',
+  displayName: 'notifications-data-access',
+  preset: '../../../jest.preset.js',
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
-  coverageDirectory: '../../coverage/libs/notifications',
+  coverageDirectory: '../../../coverage/libs/notifications/notifications-data-access',
   transform: {
     '^.+\\.(ts|mjs|js|html)$': [
       'jest-preset-angular',
