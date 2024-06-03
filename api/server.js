@@ -350,7 +350,7 @@ server.get('/articles/search', (req, res) => {
       return
     };
     var data = JSON.parse(data.toString());
-    const articles = data.articles.articles.filter(article => !!article.title?.toLowerCase().includes(title.toLowerCase()));
+    const articles = data.articles.articles.filter(article => (article.title || '').toLowerCase().includes(title.toLowerCase()));
     const filteredArticle = articles.slice(offset, offset + limit);
     return res.status(200).json({ articles: filteredArticle, articlesCount: articles.length });
   });
