@@ -49,7 +49,6 @@ export class HomeStoreService extends ComponentStore<HomeState> implements OnSta
           takeUntilDestroyed(),
           tapResponse(
             (tag) => {
-              console.log('taaaag',tag)
               this.patchState({ tags: [tag, ...this.get().tags] });
             },
             (error) => {

@@ -84,6 +84,6 @@ export class WSService {
   }
 
   private saveTag(tag: string): void {
-    lastValueFrom(this.apiService.post('/tags', { tag }).pipe(tap(() => console.log('article saved'))));
+    lastValueFrom(this.apiService.post('/tags', { tag }).pipe(tap(() => console.log('tag saved'))));
   }
 }

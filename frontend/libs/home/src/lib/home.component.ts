@@ -32,7 +32,7 @@ export class HomeComponent {
 
   constructor() {
     this.articlesListStore.loadArticles(this.$isLoaded() ? this.$listConfig() : this.$listConfig);
-    this.articlesListStore.listenToSocketArticles({});
+    this.articlesListStore.listenToSocketArticles();
   }
 
   readonly loadArticlesOnLogin = effect(() => {

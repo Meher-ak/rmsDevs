@@ -1,22 +1,20 @@
-import { Input, Output, OnChanges, Directive, OnDestroy, Renderer2, EventEmitter } from '@angular/core';
+import { OnChanges, Directive, OnDestroy, Renderer2, model } from '@angular/core';
 
 @Directive({
   selector: '[cdtClickOutside]',
-  standalone: true
+  standalone: true,
 })
 export class ClickOutsideDirective implements OnChanges, OnDestroy {
-  @Input() toggle = false;
-  @Output() toggleChange = new EventEmitter<boolean>();
-
-  private unlistnerMousedown: () => void = () => {};
+  toggle = model<boolean>(false);
+  private unlistnerMousedown: () => void = () => null;
 
   constructor(private readonly renderer2: Renderer2) {}
 
   ngOnChanges(): void {
-    if (this.toggle) {
+    if (this.toggle()) {
       this.unlistnerMousedown = this.renderer2.listen('document', 'mousedown', () => {
         setTimeout(() => {
-          this.toggleChange.emit(false);
+          this.toggle.update(() => false);
         }, 200);
       });
     } else {

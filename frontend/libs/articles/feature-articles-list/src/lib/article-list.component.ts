@@ -1,5 +1,5 @@
 import { AsyncPipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ArticleListItemComponent } from './article-list-item/article-list-item.component';
 import { PagerComponent } from '@infordevjournal/ui/components';
@@ -14,6 +14,7 @@ import { InputComponent } from '@infordevjournal/core/forms/src/lib/fields/input
 import { FormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 const imports = [
   AsyncPipe,
@@ -31,7 +32,8 @@ const imports = [
   imports,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ArticleListComponent implements OnInit, OnDestroy {
+export class ArticleListComponent implements OnInit {
+  private readonly destroyRef: DestroyRef = inject(DestroyRef);
   private readonly articlesListStore = inject(ArticlesListStore);
   private readonly router = inject(Router);
 
@@ -42,16 +44,12 @@ export class ArticleListComponent implements OnInit, OnDestroy {
 
   protected search = '';
   protected pagerMode: 'pager' | 'onscroll' = 'onscroll';
+
   private readonly debounceTimeMs = 500;
-  // TODO: unsubscribe with implimenting BaseComponent
   private searchSubject = new Subject<string>();
 
   constructor() {
     this.articlesListStore.listenToSocketLikeUnlike({});
-  }
-
-  ngOnDestroy(): void {
-    this.unsubscribeFromSearch();
   }
 
   ngOnInit(): void {
@@ -77,9 +75,11 @@ export class ArticleListComponent implements OnInit, OnDestroy {
   }
 
   listenToSearch(): void {
-    this.searchSubject.pipe(debounceTime(this.debounceTimeMs)).subscribe((searchValue) => {
-      this.performSearch(searchValue);
-    });
+    this.searchSubject
+      .pipe(takeUntilDestroyed(this.destroyRef), debounceTime(this.debounceTimeMs))
+      .subscribe((searchValue) => {
+        this.performSearch(searchValue);
+      });
   }
 
   favorite(slug: string) {
@@ -102,9 +102,5 @@ export class ArticleListComponent implements OnInit, OnDestroy {
     if (intersected) {
       this.setPage(this.$listConfig.currentPage() + 1, 'LOAD_MORE');
     }
-  }
-
-  unsubscribeFromSearch(): void {
-    this.searchSubject.unsubscribe();
   }
 }

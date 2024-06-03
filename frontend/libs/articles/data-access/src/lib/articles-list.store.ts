@@ -58,9 +58,8 @@ export const ArticlesListStore = signalStore(
         ),
       ),
     ),
-    listenToSocketArticles: rxMethod<unknown>(
+    listenToSocketArticles: rxMethod<void>(
       pipe(
-        tap(() => setLoading('getArticle')),
         concatMap(() =>
           wsState.article.pipe(
             takeUntilDestroyed(),
@@ -77,7 +76,7 @@ export const ArticlesListStore = signalStore(
                 });
               },
               error: () => {
-                patchState(store, { ...articlesListInitialState, ...setLoaded('getArticle') });
+                patchState(store, { ...articlesListInitialState });
               },
             }),
           ),
@@ -86,7 +85,6 @@ export const ArticlesListStore = signalStore(
     ),
     listenToSocketLikeUnlike: rxMethod<unknown>(
       pipe(
-        tap(() => setLoading('getNewLikeUnlike')),
         concatMap(() =>
           wsState.likeUnlike.pipe(
             takeUntilDestroyed(),
@@ -101,11 +99,10 @@ export const ArticlesListStore = signalStore(
                     entities: articles,
                     articlesCount: store.articles.articlesCount() + 1,
                   },
-                  ...setLoaded('getNewLikeUnlike'),
                 });
               },
               error: () => {
-                patchState(store, { ...articlesListInitialState, ...setLoaded('getNewLikeUnlike') });
+                patchState(store, { ...articlesListInitialState });
               },
             }),
           ),
