@@ -1,14 +1,20 @@
 import { inject, Injectable } from '@angular/core';
+import { lastValueFrom, tap } from 'rxjs';
 
 import { io, Socket } from 'socket.io-client';
 
+import { WSState } from './ws.state';
 import { EventEnum } from './ws.model';
 import { Article } from '@infordevjournal/core/api-types/src';
-import { WSState } from './ws.state';
+import { ApiService } from '@infordevjournal/core/http-client/src';
+import { ArticlesService } from '@infordevjournal/articles/data-access';
 
 @Injectable({ providedIn: 'root' })
 export class WSService {
   private readonly wsState = inject(WSState);
+  private readonly apiService = inject(ApiService);
+  private readonly articleService = inject(ArticlesService);
+
   // TODO: this property is temporary fix for disconnecting socket
   private autoReconnect = true;
   private socket: Socket | null = null;
@@ -53,12 +59,15 @@ export class WSService {
 
   public listenToArticles(): void {
     this.socket?.on(EventEnum.ARTICLES, (event: Article | Article[]) => {
-      this.wsState.setArticle(Array.isArray(event) ? event[0] : event);
+      const article = Array.isArray(event) ? event[0] : event;
+      this.saveArticle(article);
+      this.wsState.setArticle(article);
     });
   }
 
   public listenToTags(): void {
     this.socket?.on(EventEnum.TAGS, (event: string) => {
+      this.saveTag(event);
       this.wsState.setTag(event);
     });
   }
@@ -69,8 +78,12 @@ export class WSService {
     });
   }
 
-  // private saveArticle(article: Article): void {
-  //   article.slug = '';
-  //   lastValueFrom(this.articleService.publishArticle(article).pipe(tap(() => console.log('article saved'))));
-  // }
+  private saveArticle(article: Article): void {
+    article.slug = '';
+    lastValueFrom(this.articleService.publishArticle(article).pipe(tap(() => console.log('article saved'))));
+  }
+
+  private saveTag(tag: string): void {
+    lastValueFrom(this.apiService.post('/tags', { tag }).pipe(tap(() => console.log('article saved'))));
+  }
 }
