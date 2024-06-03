@@ -3,6 +3,7 @@ import {
   Articles,
   ArticlesListConfig,
   ArticlesListState,
+  LoadStrategyType,
   articlesListInitialState,
 } from './models/articles-list.model';
 import { computed, inject } from '@angular/core';
@@ -12,7 +13,9 @@ import { concatMap, pipe, tap } from 'rxjs';
 import { setLoaded, setLoading, withCallState } from '@infordevjournal/core/data-access';
 import { tapResponse } from '@ngrx/operators';
 import { ActionsService } from './services/actions.service';
+import { WSState } from '@infordevjournal/ws';
 import { Article } from '@infordevjournal/core/api-types';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 export const ArticlesListStore = signalStore(
   { providedIn: 'root' },
@@ -25,7 +28,13 @@ export const ArticlesListStore = signalStore(
       ),
     ),
   })),
-  withMethods((store, articlesService = inject(ArticlesService), actionsService = inject(ActionsService)) => ({
+  withMethods(
+    (
+      store,
+      articlesService = inject(ArticlesService),
+      actionsService = inject(ActionsService),
+      wsState = inject(WSState),
+    ) => ({
     loadArticles: rxMethod<ArticlesListConfig>(
       pipe(
         tap(() => setLoading('getArticles')),
@@ -33,6 +42,9 @@ export const ArticlesListStore = signalStore(
           articlesService.query(listConfig).pipe(
             tapResponse({
               next: ({ articles, articlesCount }) => {
+                articles =
+                  listConfig.loadStrategy === 'LOAD_MORE' ? [...store.articles().entities, ...articles] : articles;
+
                 patchState(store, {
                   articles: { articlesCount: articlesCount, entities: articles },
                   ...setLoaded('getArticles'),
@@ -40,6 +52,57 @@ export const ArticlesListStore = signalStore(
               },
               error: () => {
                 patchState(store, { ...articlesListInitialState, ...setLoaded('getArticles') });
+              },
+            }),
+          ),
+        ),
+      ),
+    ),
+    listenToSocketArticles: rxMethod<void>(
+      pipe(
+        concatMap(() =>
+          wsState.article.pipe(
+            takeUntilDestroyed(),
+            tapResponse({
+              next: (article) => {
+                const articles = [article, ...store.articles().entities];
+
+                patchState(store, {
+                  articles: {
+                    entities: articles,
+                    articlesCount: store.articles.articlesCount() + 1,
+                  },
+                  ...setLoaded('getArticle'),
+                });
+              },
+              error: () => {
+                patchState(store, { ...articlesListInitialState });
+              },
+            }),
+          ),
+        ),
+      ),
+    ),
+    listenToSocketLikeUnlike: rxMethod<unknown>(
+      pipe(
+        concatMap(() =>
+          wsState.likeUnlike.pipe(
+            takeUntilDestroyed(),
+            tapResponse({
+              next: (likeUnlikeArticle) => {
+                const articles = store
+                  .articles()
+                  .entities.map((article) => (article.slug === likeUnlikeArticle.slug ? likeUnlikeArticle : article));
+
+                patchState(store, {
+                  articles: {
+                    entities: articles,
+                    articlesCount: store.articles.articlesCount() + 1,
+                  },
+                });
+              },
+              error: () => {
+                patchState(store, { ...articlesListInitialState });
               },
             }),
           ),
@@ -85,7 +148,7 @@ export const ArticlesListStore = signalStore(
     setListConfig: (listConfig: ArticlesListConfig) => {
       patchState(store, { listConfig });
     },
-    setListPage: (page: number) => {
+    setListPage: (page: number, loadStrategy: LoadStrategyType) => {
       const filters = {
         ...store.listConfig.filters(),
         offset: (store.listConfig().filters.limit ?? 10) * (page - 1),
@@ -93,6 +156,7 @@ export const ArticlesListStore = signalStore(
       const listConfig: ArticlesListConfig = {
         ...store.listConfig(),
         currentPage: page,
+        loadStrategy,
         filters,
       };
       patchState(store, { listConfig });

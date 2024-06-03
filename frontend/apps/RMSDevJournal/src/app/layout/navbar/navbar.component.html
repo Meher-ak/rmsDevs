@@ -47,41 +47,27 @@
           </a>
         </li>
         <li class="nav-item dropdown">
-          <a (click)="toggleNotifications()" data-e2e-id="loggedin-user" routerLinkActive="active" class="nav-link dropdown-toggle"  id="notificationDropdown" 
-          role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <a
+            cdtClickOutside
+            (click)="toggleNotifications()"
+            [(toggle)]="isNotificationsOpen"
+            data-e2e-id="loggedin-user"
+            routerLinkActive="active"
+            class="nav-link dropdown-toggle"
+            id="notificationDropdown"
+            role="button"
+            data-toggle="dropdown"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >
             <i class="ion-android-notifications"></i> Notification
           </a>
-          <div class="dropdown-menu dropdown-menu-right " id="notifList"  aria-labelledby="notificationDropdown">
-            <h6 class="dropdown-header">New Article</h6>
-            // received article here 
-            <!-- <a class="dropdown-item" href="#">Enim illum ut similique quos...</a> -->
-            <!-- <a class="dropdown-item" href="#">Voluptatum sit dolorem dolor...</a>  -->
-            <div class="dropdown-divider"></div>        
-            <h6 class="dropdown-header">New Tag</h6>
-            // received tag here
-            <div class="dropdown-divider"></div>     
-            <h6 class="dropdown-header">like/unlike article</h6>
-            // received like/unlike here
-          </div>
+          @defer (when isNotificationsOpen) {
+            @if (isNotificationsOpen) {
+              <cdt-dropdown></cdt-dropdown>
+            }
+          }
         </li>
-        
-
-        <!-- <li class="nav-item" [ngClass]="{ 'open': isNotificationsOpen }" (click)="toggleNotifications()">
-          <a class="nav-link" href="#" (click)="$event.preventDefault()">
-            <i class="ion-notifications"></i>&nbsp;Notifications
-          </a>
-          <ul class="dropdown-menu" *ngIf="isNotificationsOpen">
-            <li><a class="dropdown-item" href="#">Notification 1</a></li>
-            <li><a class="dropdown-item" href="#">Notification 2</a></li>
-            <li><a class="dropdown-item" href="#">Notification 3</a></li>
-          </ul>
-        </li> -->
-
-
-        
-
-
-
       </ul>
     }
   </div>

@@ -258,6 +258,7 @@ server.post('/articles', (req, res) => {
           updatedAt: new Date().toISOString(),
           favorited: false,
           favoritesCount: 0,
+          slug: title,
           author:
             { username: user.username, bio: user.bio, image: user.image, following: user.following }
         }
@@ -315,23 +316,22 @@ server.get('/articles', (req, res) => {
       return
     };
     var data = JSON.parse(data.toString());
+    let articles = data.articles.articles;
+
     if (author) {
-      const articles = data.articles.articles.filter(article => article.author.username === author);
-      const filteredArticle = articles.slice(offset, offset + limit);
-      return res.status(200).json({ articles: filteredArticle, articlesCount: articles.length });
+      articles = articles.filter(article => article.author.username === author);
     }
     if (favorited) {
-      const articles = data.articles.articles.filter(article => article.favorited)
-      const filteredArticle = articles.slice(offset, offset + limit);
-      return res.status(200).json({ articles: filteredArticle, articlesCount: articles.length });
+      articles = articles.filter(article => article.favorited)
     }
-    if (tag) {
-      const articles = data.articles.articles.filter(article => article.tagList.includes(tag))
-      const filteredArticle = articles.slice(offset, offset + limit);
-      return res.status(200).json({ articles: filteredArticle, articlesCount: articles.length });
+    if (!!tag) {
+      articles = articles.filter(article => {
+        return article.tagList.includes(tag);
+      })
     }
-    const articles = data.articles.articles.slice(offset, offset + limit);
-    return res.status(200).json({ articles, articlesCount: data.articles.articles.length });
+    const articlesCount = articles.length;
+    articles = articles.slice(offset, offset + limit);
+    return res.status(200).json({ articles, articlesCount });
   });
 
 }
@@ -350,7 +350,7 @@ server.get('/articles/search', (req, res) => {
       return
     };
     var data = JSON.parse(data.toString());
-    const articles = data.articles.articles.filter(article => article.title.toLowerCase().includes(title.toLowerCase()));
+    const articles = data.articles.articles.filter(article => (article.title || '').toLowerCase().includes(title.toLowerCase()));
     const filteredArticle = articles.slice(offset, offset + limit);
     return res.status(200).json({ articles: filteredArticle, articlesCount: articles.length });
   });
