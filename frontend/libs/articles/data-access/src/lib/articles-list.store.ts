@@ -85,6 +85,34 @@ export const ArticlesListStore = signalStore(
         ),
       ),
     ),
+    listenToSocketLikeUnlike: rxMethod<unknown>(
+      pipe(
+        tap(() => setLoading('getNewLikeUnlike')),
+        concatMap(() =>
+          wsState.likeUnlike.pipe(
+            takeUntilDestroyed(),
+            tapResponse({
+              next: (likeUnlikeArticle) => {
+                const articles = store
+                  .articles()
+                  .entities.map((article) => (article.slug === likeUnlikeArticle.slug ? likeUnlikeArticle : article));
+
+                patchState(store, {
+                  articles: {
+                    entities: articles,
+                    articlesCount: store.articles.articlesCount() + 1,
+                  },
+                  ...setLoaded('getNewLikeUnlike'),
+                });
+              },
+              error: () => {
+                patchState(store, { ...articlesListInitialState, ...setLoaded('getNewLikeUnlike') });
+              },
+            }),
+          ),
+        ),
+      ),
+    ),
     favouriteArticle: rxMethod<string>(
       pipe(
         concatMap((slug) =>
